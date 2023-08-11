@@ -22,7 +22,11 @@ describe('ExplorersEdition', function () {
     })
 
     it('设置bashURI', async function () {
-      await contract.setBaseURI('ipfs:/asdsd/')
+      await contract.setBaseURI('ipfs://bafybeifkubdec34m25er55wuqux2i7bmbzq22nwcym2qd5i7hte5pfc5bi/')
+    })
+
+    it('设置盲盒URI', async function () {
+      await contract.setSpecialHiddenURI('ipfs://bafybeid2mrmmxrhuduei4ez45qcsdnsw4syobdnsfemuhls2ozl3zxvudi')
     })
   })
 
@@ -87,6 +91,8 @@ describe('ExplorersEdition', function () {
         await contract.connect(signer).mint({
           value: price
         })
+
+        console.log(await contract.tokenURI(await contract.tokenOfOwnerByIndex(signer, 0)))
       }
     })
 
@@ -103,10 +109,6 @@ describe('ExplorersEdition', function () {
     it('设置售卖阶段3', async function () {
       await contract.setStage(3)
       expect(await contract.stage()).to.equal(3)
-    })
-
-    it('设置盲盒URL', async function () {
-      await contract.connect(owner).setSpecialHiddenURI('ipfs://mmmmmm')
     })
 
     it('把nft各个系列转到owner', async function () {
@@ -153,9 +155,9 @@ describe('ExplorersEdition', function () {
       console.log(`supper ${await contract.totalSupply()}`)
     })
 
-    it('设置开启盲盒', async function () {
-      await contract.connect(owner).setSpecialHidden(false)
-    })
+    // it('设置开启盲盒', async function () {
+    //   await contract.connect(owner).setSpecialHidden(false)
+    // })
 
     it('测试 nft uri', async function () {
       const balance = await contract.balanceOf(owner)
@@ -171,24 +173,32 @@ describe('ExplorersEdition', function () {
       expect(await contract.canMintSpecial(owner.address)).to.be.eq(false)
     })
 
-    it('转去别的号再mint 99', async function () {
-      const signer = (await ethers.getSigners())[2]
+    // it('转去别的号再mint 99', async function () {
+    //   const signer = (await ethers.getSigners())[2]
 
+    //   const balance = await contract.balanceOf(owner)
+
+    //   const tokenIDs: bigint[] = []
+    //   for (let i = 0; i < balance; i++) {
+    //     const tokenID = await contract.tokenOfOwnerByIndex(owner, i)
+    //     tokenIDs.push(tokenID)
+    //   }
+
+    //   for (let i = 0; i < tokenIDs.length; i++) {
+    //     await contract.transferFrom(owner, signer, tokenIDs[i])
+    //   }
+
+    //   await contract.connect(signer).specialMint({
+    //     value: price
+    //   })
+    // })
+
+    it('----', async function () {
+      console.log(`合约地址: ${contract.target}`)
       const balance = await contract.balanceOf(owner)
-
-      const tokenIDs: bigint[] = []
       for (let i = 0; i < balance; i++) {
-        const tokenID = await contract.tokenOfOwnerByIndex(owner, i)
-        tokenIDs.push(tokenID)
+        console.log(`token id: ${await contract.tokenOfOwnerByIndex(owner, i)}`)
       }
-
-      for (let i = 0; i < tokenIDs.length; i++) {
-        await contract.transferFrom(owner, signer, tokenIDs[i])
-      }
-
-      await contract.connect(signer).specialMint({
-        value: price
-      })
     })
   })
 

@@ -9,6 +9,7 @@ async function main() {
   await contract.setBaseURI('ipfs://xxxx/')
   await contract.setStage(1)
   await contract.setMintPrice(1)
+  await contract.setSellingTime(1692527776)
 
   console.log('Verifying contract...')
   try {

@@ -18,12 +18,12 @@ const config: HardhatUserConfig = {
   },
   defaultNetwork: 'localhost',
   networks: {
-    localhost: {
-      accounts: {
-        mnemonic: 'test test test test test test test test test test test junk',
-        count: 801
-      }
-    },
+    // localhost: {
+    //   accounts: {
+    //     mnemonic: 'test test test test test test test test test test test junk',
+    //     count: 801
+    //   }
+    // },
     arbitrumGoerli: {
       url: 'https://goerli-rollup.arbitrum.io/rpc',
       chainId: 421613,

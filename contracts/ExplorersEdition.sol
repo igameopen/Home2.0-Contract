@@ -85,9 +85,8 @@ contract ExplorersEdition is ERC721, ERC721Enumerable, Ownable {
         payable(recipient).transfer(address(this).balance);
     }
 
-    function ownerMint(address recipient, uint256 seriesID, uint256 mintCount) external onlyOwner {
-        require(seriesID >= 1 && seriesID <= 9, "series id error");
-        uint256 seriesIndex = seriesID - 1;
+    function ownerMint(address recipient, uint256 seriesIndex, uint256 mintCount) external onlyOwner {
+        require(seriesIndex >= 0 && seriesIndex <= 8, "series id error");
         uint256 maxSuppy = seriesIndex < 8 ? 100 : SPECIAL_MXA_SUPPY;
         require(seriesSaleCounts[seriesIndex] + mintCount <= maxSuppy, "not so much");
 
@@ -96,9 +95,9 @@ contract ExplorersEdition is ERC721, ERC721Enumerable, Ownable {
             _tokenIdCounter.increment();
             _safeMint(recipient, tokenId);
 
-            _tokenSeries[tokenId] = seriesID;
-            seriesSaleCounts[seriesIndex] += 1;
+            _tokenSeries[tokenId] = seriesIndex;
             _tokenSeriesIndex[tokenId] = seriesSaleCounts[seriesIndex];
+            seriesSaleCounts[seriesIndex] += 1;
         }
     }
 
@@ -114,11 +113,11 @@ contract ExplorersEdition is ERC721, ERC721Enumerable, Ownable {
             if (tokenMinted[tokenID]) {
                 continue;
             }
-            uint256 seriesID = _tokenSeries[tokenID];
-            if (seriesID == 9) {
+            uint256 seriesIndex = _tokenSeries[tokenID];
+            if (seriesIndex == 8) {
                 continue;
             }
-            hasTokenSeries[seriesID - 1] = true;
+            hasTokenSeries[seriesIndex] = true;
         }
 
         for (uint256 i = 0; i < hasTokenSeries.length; i++) {
@@ -153,21 +152,21 @@ contract ExplorersEdition is ERC721, ERC721Enumerable, Ownable {
         _tokenIdCounter.increment();
         _safeMint(msg.sender, tokenId);
 
-        uint256[] memory seriesIDs = new uint256[](length);
+        uint256[] memory seriesIndexes = new uint256[](length);
         uint256 index = 0;
         for (uint256 i = 0; i < seriesSaleCounts.length - 1; i++) {
             if (seriesSaleCounts[i] < 100) {
-                seriesIDs[index] = i;
+                seriesIndexes[index] = i;
                 index++;
             }
         }
 
-        uint256 seriesIndex = seriesIDs[
+        uint256 seriesIndex = seriesIndexes[
             uint256(keccak256(abi.encodePacked(block.timestamp, block.prevrandao, msg.sender))) % length
         ];
-        _tokenSeries[tokenId] = seriesIndex + 1;
-        seriesSaleCounts[seriesIndex] += 1;
+        _tokenSeries[tokenId] = seriesIndex;
         _tokenSeriesIndex[tokenId] = seriesSaleCounts[seriesIndex];
+        seriesSaleCounts[seriesIndex] += 1;
 
         _normalMinted[msg.sender] = true;
     }
@@ -185,12 +184,12 @@ contract ExplorersEdition is ERC721, ERC721Enumerable, Ownable {
             if (tokenMinted[tokenID]) {
                 continue;
             }
-            uint256 seriesID = _tokenSeries[tokenID];
-            if (seriesID == 9) {
+            uint256 seriesIndex = _tokenSeries[tokenID];
+            if (seriesIndex == 8) {
                 continue;
             }
-            hasTokenSeries[seriesID - 1] = true;
-            tokenMint[seriesID - 1] = tokenID;
+            hasTokenSeries[seriesIndex] = true;
+            tokenMint[seriesIndex] = tokenID;
         }
 
         for (uint256 i = 0; i < hasTokenSeries.length; i++) {
@@ -201,9 +200,9 @@ contract ExplorersEdition is ERC721, ERC721Enumerable, Ownable {
         _tokenIdCounter.increment();
         _safeMint(msg.sender, tokenId);
 
-        _tokenSeries[tokenId] = 9;
-        seriesSaleCounts[8] += 1;
+        _tokenSeries[tokenId] = 8;
         _tokenSeriesIndex[tokenId] = seriesSaleCounts[8];
+        seriesSaleCounts[8] += 1;
 
         // _specialMinted[msg.sender] = true;
         for (uint256 i = 0; i < tokenMint.length; i++) {
@@ -231,17 +230,17 @@ contract ExplorersEdition is ERC721, ERC721Enumerable, Ownable {
     function tokenURI(uint256 tokenId) public view override returns (string memory) {
         _requireMinted(tokenId);
 
-        if (_tokenSeries[tokenId] == 9 && specialHidden) {
+        if (_tokenSeries[tokenId] == 8 && specialHidden) {
             return _specialHiddenURI;
         }
 
         string memory baseURI = _baseURI();
 
-        if (bytes(baseURI).length <= 0 || _tokenSeries[tokenId] == 0 || _tokenSeriesIndex[tokenId] == 0) {
+        if (bytes(baseURI).length <= 0) {
             return "";
         }
 
-        uint256 uriID = _tokenSeries[tokenId] * 100 + _tokenSeriesIndex[tokenId] - 1;
+        uint256 uriID = _tokenSeries[tokenId] * 100 + _tokenSeriesIndex[tokenId];
 
         return string(abi.encodePacked(baseURI, uriID.toString()));
     }
