@@ -1,27 +1,35 @@
-import { ethers } from "hardhat";
+import { ethers, run } from 'hardhat'
 
 async function main() {
-  const currentTimestampInSeconds = Math.round(Date.now() / 1000);
-  const unlockTime = currentTimestampInSeconds + 60;
+  let contract = await ethers.deployContract('ExplorersEdition')
+  contract.waitForDeployment()
 
-  const lockedAmount = ethers.parseEther("0.001");
+  console.log(`Contract with deployed to ${contract.target}`)
+  console.log('setBaseURI')
+  await contract.setBaseURI('ipfs://bafybeifkubdec34m25er55wuqux2i7bmbzq22nwcym2qd5i7hte5pfc5bi/')
+  console.log('setSpecialHiddenURI')
+  await contract.setSpecialHiddenURI('ipfs://bafybeid2mrmmxrhuduei4ez45qcsdnsw4syobdnsfemuhls2ozl3zxvudi')
+  console.log('setMintPrice')
+  await contract.setMintPrice(ethers.parseEther('0.022'))
 
-  const lock = await ethers.deployContract("Lock", [unlockTime], {
-    value: lockedAmount,
-  });
-
-  await lock.waitForDeployment();
-
-  console.log(
-    `Lock with ${ethers.formatEther(
-      lockedAmount
-    )}ETH and unlock timestamp ${unlockTime} deployed to ${lock.target}`
-  );
+  console.log('Verifying contract...')
+  try {
+    await run('verify:verify', {
+      address: contract.target,
+      constructorArguments: []
+    })
+  } catch (e) {
+    if ((e as TypeError).message.toLowerCase().includes('already verified')) {
+      console.log('Already Verified!')
+    } else {
+      console.log(e)
+    }
+  }
 }
 
 // We recommend this pattern to be able to use async/await everywhere
 // and properly handle errors.
 main().catch((error) => {
-  console.error(error);
-  process.exitCode = 1;
-});
+  console.error(error)
+  process.exitCode = 1
+})

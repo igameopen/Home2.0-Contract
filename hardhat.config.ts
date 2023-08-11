@@ -28,6 +28,10 @@ const config: HardhatUserConfig = {
       url: 'https://goerli-rollup.arbitrum.io/rpc',
       chainId: 421613,
       accounts: [PRIVATE_KEY]
+    },
+    arbitrumOne: {
+      url: 'https://arb1.arbitrum.io/rpc',
+      accounts: [PRIVATE_KEY]
     }
   },
   mocha: {
